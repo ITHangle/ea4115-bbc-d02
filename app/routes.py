@@ -189,3 +189,13 @@ def unfollow(username):
     db.session.commit()
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
+
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('q', '')
+    search_results = perform_search(query)
+    return render_template('search.html', query=query, results=search_results)
+
+def perform_search(query):
+    results = [f"Result for '{query}': {i}" for i in range(3)]
+    return results
