@@ -196,6 +196,8 @@ def search():
     search_results = perform_search(query)
     return render_template('search.html', query=query, results=search_results)
 
+
+
 def perform_search(query):
     results = [f"Result for '{query}': {i}" for i in range(3)]
     return results
