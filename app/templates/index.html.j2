@@ -4,64 +4,86 @@
     <h1>{{ _('Hi, %(username)s! Welcome to bbc news!', username=current_user.username) }}</h1>
     <br><br>
     
-    <style>.center { margin-left: auto; margin-right: auto;}</style>
+    <style>.center { margin-left: auto; margin-right: auto;}</style> 
     
-    <table id = “1table” class="center"; width = "100%">
-            <tr>
-                <td>img</td>
-                <td>img</td> 
-                <td>text</td>
-            </tr>
-            <tr>
-                <td>text</td>
-                <td></td>
-                <td>text</td>
-            </tr>
-            <tr>
-                <td>img</td>
-                <td></td>
-                <td>text</td>
-            </tr>
-            <tr>
-                <td>text</td>
-                <td></td>
-                <td>text</td>
-            </tr>
-        </table>
-
-        <br><br>
-
-        <table id = "2table" class="center"; width = "100%">
-            <tr>
-                <td>img</td>
-                <td>img</td>
-            </tr>
-            <tr>
-                <td>text</td>
-                <td>text</td>
-
-            </tr>
-             <tr>
-                <td>text</td>
-                <td>text</td>
-            </tr>
-        </table>
-        <table id = "3table" class="center"; width = "100%">
-            <tr>
-                    <td>text</td>
+    <table id = “1table”; class="center"; width = "100%"; text-align: center;>
+        <tr>
+            <td width = "23%">img</td>
+            <td width = "54%">img</td> 
+            <td width = "23%">text</td>
+        </tr>
+        
+        <tr>
+            <td width = "23%">
+            <table id = "3table"; class="left"; >
+                <tr>
+                    <td>time</td>
                     <td>img</td>
                     <td>text</td>
-                    <td>text</td>
+                </tr>
+            </table>
+            </td>
+            <td width = "54%"></td>
+            <td width = "23%">    
+            <table id = "3table"; class="left"; >
+            <tr>
+                    <td>time</td>
                     <td>img</td>
                     <td>text</td>
             </tr>
-        </table>
+            </table>
+            </td>
+        </tr>
+        <tr>
+            <td width = "23%">img</td>
+            <td width = "54%"></td>
+            <td width = "23%">text</td>
+        </tr>
+        <tr>
+            <td width = "23%">
+            <table id = "3table"; class="left"; >
+                <tr>
+                    <td>time</td>
+                    <td>img</td>
+                    <td>text</td>
+                </tr>
+            </table>
+            </td>
+            <td width = "54%"></td>
+            <td width = "23%">
+                <table id = "3table"; class="left"; >
+                <tr>
+                    <td>time</td>
+                    <td>img</td>
+                    <td>text</td>
+                </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <br><br>
+
+    <table id = "2table;" class="center"; width = "100%">
+        <tr>
+            <td>img</td>
+            <td>img</td>
+        </tr>
+        <tr>
+            <td>text</td>
+            <td>text</td>
+
+        </tr>
+        <tr>
+            <td>text</td>
+            <td>text</td>
+        </tr>
+    </table>
 
 
-            
 
 
-    
+
 {% endblock %}
 
 
