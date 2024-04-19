@@ -1,88 +1,21 @@
 {% extends "searchbase.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
-    <h1>{{ _('Hi, %(username)s! Welcome to bbc news!', username=current_user.username) }}</h1>
-    <br><br>
+
+    <h1>News</h1>
+    {% for news_item in news_items %}
+    <div class="news-item">
+    <img src="{{ news_item.image }}" alt="{{ news_item.title }}">
+    <h2>{{ news_item.title }}</h2>
     
-    <style>.center { margin-left: auto; margin-right: auto;}</style> 
+    <img src="{{ news_item.image }}" alt="{{ news_item.title }}">
+    <h2>{{ news_item.title }}</h2>
+    <p>{{ news_item.content }}</p>
+    <p>{{ news_item.published_date }}</p>
     
-    <table id = “1table”; class="center"; width = "100%"; text-align: center;>
-        <tr>
-            <td width = "23%">img</td>
-            <td width = "54%">img</td> 
-            <td width = "23%">text</td>
-        </tr>
-        
-        <tr>
-            <td width = "23%">
-            <table id = "3table"; class="left"; >
-                <tr>
-                    <td>time</td>
-                    <td>img</td>
-                    <td>text</td>
-                </tr>
-            </table>
-            </td>
-            <td width = "54%"></td>
-            <td width = "23%">    
-            <table id = "3table"; class="left"; >
-            <tr>
-                    <td>time</td>
-                    <td>img</td>
-                    <td>text</td>
-            </tr>
-            </table>
-            </td>
-        </tr>
-        <tr>
-            <td width = "23%">img</td>
-            <td width = "54%"></td>
-            <td width = "23%">text</td>
-        </tr>
-        <tr>
-            <td width = "23%">
-            <table id = "3table"; class="left"; >
-                <tr>
-                    <td>time</td>
-                    <td>img</td>
-                    <td>text</td>
-                </tr>
-            </table>
-            </td>
-            <td width = "54%"></td>
-            <td width = "23%">
-                <table id = "3table"; class="left"; >
-                <tr>
-                    <td>time</td>
-                    <td>img</td>
-                    <td>text</td>
-                </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-
-    <br><br>
-
-    <table id = "2table;" class="center"; width = "100%">
-        <tr>
-            <td>img</td>
-            <td>img</td>
-        </tr>
-        <tr>
-            <td>text</td>
-            <td>text</td>
-
-        </tr>
-        <tr>
-            <td>text</td>
-            <td>text</td>
-        </tr>
-    </table>
-
-
-
-
+    {# 在这里添加其他新闻内容 #}
+    </div>
+{% endfor %}
 
 {% endblock %}
 

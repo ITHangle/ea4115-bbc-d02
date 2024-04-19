@@ -201,3 +201,4 @@ def search():
 def perform_search(query):
     results = [f"Result for '{query}': {i}" for i in range(3)]
     return results
+
