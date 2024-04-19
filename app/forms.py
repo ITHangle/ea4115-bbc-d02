@@ -67,3 +67,8 @@ class EditProfileForm(FlaskForm):
 class PostForm(FlaskForm):
     post = TextAreaField(_l('Say something'), validators=[DataRequired()])
     submit = SubmitField(_l('Submit'))
+
+class NewsForm(FlaskForm):  # 定义NewsForm表单
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])  # 新增的内容字段
+    submit = SubmitField('Submit')

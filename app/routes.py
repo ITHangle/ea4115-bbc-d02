@@ -1,13 +1,15 @@
 from datetime import datetime
+import os
 from flask import render_template, flash, redirect, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, EditProfileForm, PostForm, \
+from app.forms import LoginForm, NewsForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm
-from app.models import User, Post
+from app.models import News, User, Post
 from app.email import send_password_reset_email
+from werkzeug.utils import secure_filename
 
 
 @app.before_request
@@ -190,11 +192,13 @@ def unfollow(username):
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
 
-@app.route('/search', methods=['GET'])
+@app.route('/search', methods=['GET', 'POST'])
 def search():
-    query = request.args.get('q', '')
-    search_results = perform_search(query)
-    return render_template('search.html', query=query, results=search_results)
+    if request.method == 'POST':
+        query = request.form['query']
+        results = News.query.filter(News.title.contains(query)).all()
+        return render_template('search.html', results=results)
+    return render_template('search.html')
 
 
 
@@ -202,3 +206,28 @@ def perform_search(query):
     results = [f"Result for '{query}': {i}" for i in range(3)]
     return results
 
+@app.route('/home', methods=['GET', 'POST'])
+def home():
+    form = NewsForm()
+    if form.validate_on_submit():
+        image = request.files['image']
+        filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        news = News(title=form.title.data, content=form.content.data, image=filename)  # 新增的内容字段
+        db.session.add(news)
+        db.session.commit()
+        return redirect(url_for('home'))
+    news_list = News.query.all()
+    return render_template('home.html.j2', form=form, news_list=news_list)
+
+@app.route('/submit', methods=['GET', 'POST'])  # 新增的路由
+def submit():
+    form = NewsForm()
+    if form.validate_on_submit():
+        image = request.files['image']
+        image_data = image.read()  # 读取图片数据
+        news = News(title=form.title.data, content=form.content.data, image=image_data)  # 存储图片数据
+        db.session.add(news)
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('submit.html', form=form)

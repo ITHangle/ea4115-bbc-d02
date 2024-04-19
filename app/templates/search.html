@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search</title>
+</head>
+<body>
+    <h1>Search</h1>
+    <form method="POST">
+        <p>
+            <input type="text" name="query" size="32">
+            <input type="submit" value="Search">
+        </p>
+    </form>
+    {% if results %}
+    {% for news in results %}
+    <div class="news">
+        <h2>{{ news.title }}</h2>
+        <p>{{ news.content }}</p>
+        <img src="{{ url_for('static', filename=news.image) }}" width="100">
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>Not found</p>
+    {% endif %}
+</body>
+</html>
