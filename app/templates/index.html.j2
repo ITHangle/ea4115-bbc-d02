@@ -1,22 +1,30 @@
 {% extends "searchbase.html.j2" %}
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
+    <h1>{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
 
-    <h1>News</h1>
-    {% for news_item in news_items %}
-    <div class="news-item">
-    <img src="{{ news_item.image }}" alt="{{ news_item.title }}">
-    <h2>{{ news_item.title }}</h2>
-    
-    <img src="{{ news_item.image }}" alt="{{ news_item.title }}">
-    <h2>{{ news_item.title }}</h2>
-    <p>{{ news_item.content }}</p>
-    <p>{{ news_item.published_date }}</p>
-    
-    {# 在这里添加其他新闻内容 #}
+    {% for news in news_list %}
+    <div class="news">
+        <h2>{{ news.title }}</h2>
+        <p>{{ news.content }}</p>
+        <img src="{{ url_for('picture', news_id=news.id) }}" alt="News image", width="100">
     </div>
-{% endfor %}
-
+    {% endfor %}
+    <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">←</span> {{ _('Newer posts') }}
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    {{ _('Older posts') }} <span aria-hidden="true">→</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 {% endblock %}
+
 
 

@@ -4,6 +4,8 @@ from hashlib import md5
 from app import app, db, login
 import jwt
 from sqlalchemy import LargeBinary
+import base64 #图片转换
+
 
 from flask_login import UserMixin
 
@@ -98,3 +100,7 @@ class News(db.Model):  # 定义News模型
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)  # 新增的内容字段
     image = db.Column(LargeBinary)
+    
+
+
+

@@ -1,6 +1,7 @@
 from datetime import datetime
 import os
-from flask import render_template, flash, redirect, url_for, request, g
+import io
+from flask import render_template, flash, redirect, url_for, request, g, send_file
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
@@ -10,6 +11,7 @@ from app.forms import LoginForm, NewsForm, RegistrationForm, EditProfileForm, Po
 from app.models import News, User, Post
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
+from PIL import Image
 
 
 @app.before_request
@@ -24,23 +26,17 @@ def before_request():
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-    form = PostForm()
+    form = NewsForm()
     if form.validate_on_submit():
-        post = Post(body=form.post.data, author=current_user)
-        db.session.add(post)
+        image = request.files['image']
+        filename = secure_filename(image.filename)
+        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        news = News(title=form.title.data, content=form.content.data, image=filename)  # 新增的内容字段
+        db.session.add(news)
         db.session.commit()
-        flash(_('Your post is now live!'))
-        return redirect(url_for('index'))
-    page = request.args.get('page', 1, type=int)
-    posts = current_user.followed_posts().paginate(
-        page=page, per_page=app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for(
-        'index', page=posts.next_num) if posts.next_num else None
-    prev_url = url_for(
-        'index', page=posts.prev_num) if posts.prev_num else None
-    return render_template('index.html.j2', title=_('Home'), form=form,
-                           posts=posts.items, next_url=next_url,
-                           prev_url=prev_url)
+        return redirect(url_for('home'))
+    news_list = News.query.all()
+    return render_template('index.html.j2', form=form, news_list=news_list)
 
 
 @app.route('/explore')
@@ -206,28 +202,26 @@ def perform_search(query):
     results = [f"Result for '{query}': {i}" for i in range(3)]
     return results
 
-@app.route('/home', methods=['GET', 'POST'])
-def home():
-    form = NewsForm()
-    if form.validate_on_submit():
-        image = request.files['image']
-        filename = secure_filename(image.filename)
-        image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        news = News(title=form.title.data, content=form.content.data, image=filename)  # 新增的内容字段
-        db.session.add(news)
-        db.session.commit()
-        return redirect(url_for('home'))
-    news_list = News.query.all()
-    return render_template('home.html.j2', form=form, news_list=news_list)
+
 
 @app.route('/submit', methods=['GET', 'POST'])  # 新增的路由
-def submit():
+def submit():          #提交新闻表单包title内容和图片
     form = NewsForm()
     if form.validate_on_submit():
         image = request.files['image']
-        image_data = image.read()  # 读取图片数据
-        news = News(title=form.title.data, content=form.content.data, image=image_data)  # 存储图片数据
+        image_data = image.read()
+        #imagename = os.path.join(os.getcwd(),'static', image.filename)  # 拼接文件绝对路径
+        #image_data = open(imagename, secure_filename(image.filename)).read()  # 将文件路径存储到数据库中
+        news = News(title=form.title.data, content=form.content.data, image=image_data)
         db.session.add(news)
         db.session.commit()
-        return redirect(url_for('home'))
+        return redirect(url_for('index'))
     return render_template('submit.html', form=form)
+    
+@app.route('/picture/<int:news_id>')  # 将2进制图片数据转为图片
+def picture(news_id):
+    news = News.query.get(news_id)
+    if news and news.image:
+        return send_file(io.BytesIO(news.image), mimetype='image/jpg')
+    else:
+        abort(404)  # 如果没有找到新闻或图片，返回 404 错误
