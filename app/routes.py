@@ -227,6 +227,11 @@ def picture(news_id):
         abort(404)  # 如果没有找到新闻或图片，返回 404 错误
 
 
+
+@app.route('/index/fakenews')
+def your_function():
+    return render_template('fakenews.html.j2')
+
 posts = [
     {
         'author': 'Author 1',
