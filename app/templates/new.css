@@ -1,0 +1,34 @@
+.news-page {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.news {
+    background-color: #fff;
+    margin-bottom: 2%;
+    padding: 2%;
+    border-radius: 5%;
+    box-shadow: 0 0 1% rgba(0, 0, 0, 0.1);
+    width: 80%; /* you can adjust this as needed */
+}
+.news h2 {
+    margin-top: 0;
+}
+.news img {
+    width: 100%;  /* 控制图片宽度 */
+    height: auto;  /* 保持图片的原始纵横比 */
+    display: block;  /* 让图片成为块级元素 */
+    margin-left: auto;  /* 左边距自动 */
+    margin-right: auto;  /* 右边距自动 */
+    align-items: center;
+}
+
+.pager {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}

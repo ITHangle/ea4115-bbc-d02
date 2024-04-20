@@ -3,40 +3,8 @@
 {% block app_content %}
     <h1>{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>News Blog</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 0;
-                background-color: #f0f0f0;
-            }
-            .news {
-                background-color: #fff;
-                margin-bottom: 20px;
-                padding: 20px;
-                border-radius: 5px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            }
-            .news h2 {
-                margin-top: 0;
-            }
-            .news img {
-                width: 100%;
-            }
-            .pager {
-                justify-content: space-between;
-            }
-        </style>
-    </head>
-    <body>
+    <div class="news-page">
         <div class="container py-3">
-            <h1 class="text-center mb-4">News Blog</h1>
             {% for news in news_list %}
             <div class="news">
                 <h2>{{ news.title }}</h2>
@@ -55,9 +23,5 @@
                 </ul>
             </nav>
         </div>
-    </body>
-    </html>
+    </div>
 {% endblock %}
-
-
-
