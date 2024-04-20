@@ -225,3 +225,24 @@ def picture(news_id):
         return send_file(io.BytesIO(news.image), mimetype='image/jpg')
     else:
         abort(404)  # 如果没有找到新闻或图片，返回 404 错误
+
+
+posts = [
+    {
+        'author': 'Author 1',
+        'title': 'Blog Post 1',
+        'content': 'First post content',
+        'date_posted': 'April 20, 2024'
+    },
+    {
+        'author': 'Author 2',
+        'title': 'Blog Post 2',
+        'content': 'Second post content',
+        'date_posted': 'April 21, 2024'
+    }
+]
+
+@app.route("/")
+@app.route("/home")
+def home():
+    return render_template('explore.html', posts=posts)
