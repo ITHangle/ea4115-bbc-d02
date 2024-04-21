@@ -8,8 +8,11 @@
                 <a href="/index/fakenews">
                 <p><img src="{{ url_for('picture', news_id=news.id) }}" alt="News image", width = 130px, height = 130px></p>
                 <p><b>{{ news.title }}</b></p>
-                <p>{{ news.content }}</p>
+                <p>{{ news.content }}</p></a>
+                <a href="/index/edit"><p>Edit</p></a>
+                <a href="/delete"></a><p>Delete</p></a>
             </ul>
+
     {% endfor %}
         <nav>
         <ul class="pager nav justify-content-between">

@@ -217,7 +217,8 @@ def submit():          #提交新闻表单包title内容和图片
         db.session.commit()
         return redirect(url_for('index'))
     return render_template('submit.html', form=form)
-    
+
+
 @app.route('/picture/<int:news_id>')  # 将2进制图片数据转为图片
 def picture(news_id):
     news = News.query.get(news_id)

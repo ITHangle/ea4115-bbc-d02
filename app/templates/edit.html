@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Submit News</title>
+</head>
+<body>
+    <h1>Submit News</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.title.label }}<br>
+                {{ form.title() }}
+            </p>
+            <p>
+                {{ form.content.label }}<br>
+                {{ form.content() }}
+            </p>
+            <p>
+                {{ form.image.label }}<br>
+                {{ form.image() }}
+            </p>
+            <p>{{ form.submit() }}</p>
+        </form>
+</body>
+</html>
+    
