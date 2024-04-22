@@ -39,7 +39,7 @@ def index():
     for news in news_list:
         if len(news.content) > 100:
             news.content = news.content[:100] + '...'
-    return render_template('index.html.j2', form=form, news_list=news_list, current_user=current_user)
+    return render_template('index.html.j2', form=form, news_list=news_list, user=current_user)
 
 
 
