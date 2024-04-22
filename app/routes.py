@@ -231,32 +231,9 @@ def picture(news_id):
     else:
         abort(404)  # 如果没有找到新闻或图片，返回 404 错误
 
-
-
-@app.route('/fakenews/<int:news_id>')
-def fakenews(news_id):
+@app.route('/news/<int:news_id>')
+def news_detail(news_id):
     news = News.query.get(news_id)
     if news is None:
-        return "News not found", 404
-    return render_template('fakenews.html', news=news)
-
-
-posts = [
-    {
-        'author': 'Author 1',
-        'title': 'Blog Post 1',
-        'content': 'First post content',
-        'date_posted': 'April 20, 2024'
-    },
-    {
-        'author': 'Author 2',
-        'title': 'Blog Post 2',
-        'content': 'Second post content',
-        'date_posted': 'April 21, 2024'
-    }
-]
-
-@app.route("/")
-@app.route("/home")
-def home():
-    return render_template('explore.html', posts=posts)
+        abort(404)  # 如果找不到新闻，返回 404 错误
+    return render_template('fakenews.html.j2', news=news)
