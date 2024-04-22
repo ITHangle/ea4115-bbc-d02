@@ -26,6 +26,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     about_me = db.Column(db.String(140))
+    news = db.relationship('News', backref='author', lazy='dynamic')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     followed = db.relationship(
         'User', secondary=followers,
@@ -98,9 +99,8 @@ class Post(db.Model):
 class News(db.Model):  # 定义News模型
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    content = db.Column(db.Text, nullable=False)  # 新增的内容字段
+    content = db.Column(db.Text, nullable=False)
     image = db.Column(LargeBinary)
-    
-
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 

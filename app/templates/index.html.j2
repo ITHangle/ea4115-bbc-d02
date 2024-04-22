@@ -9,6 +9,7 @@
                 <p><img src="{{ url_for('picture', news_id=news.id) }}" alt="News image", width = 130px, height = 130px></p>
                 <p><b>{{ news.title }}</b></p>
                 <p>{{ news.content }}</p></a>
+                <p>{{ _('author：%(username)s', username=news.author.username) }}</p>
                 <a href="/index/edit"><p>Edit</p></a>
                 <a href="/delete"></a><p>Delete</p></a>
             </ul>

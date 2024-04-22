@@ -31,12 +31,16 @@ def index():
         image = request.files['image']
         filename = secure_filename(image.filename)
         image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        news = News(title=form.title.data, content=form.content.data, image=filename)  # 新增的内容字段
+        news = News(title=form.title.data, content=form.content.data, image=filename, author=current_user)
         db.session.add(news)
         db.session.commit()
         return redirect(url_for('home'))
     news_list = News.query.all()
-    return render_template('index.html.j2', form=form, news_list=news_list)
+    for news in news_list:
+        if len(news.content) > 100:
+            news.content = news.content[:100] + '...'
+    return render_template('index.html.j2', form=form, news_list=news_list, current_user=current_user)
+
 
 
 @app.route('/explore')
@@ -212,7 +216,7 @@ def submit():          #提交新闻表单包title内容和图片
         image_data = image.read()
         #imagename = os.path.join(os.getcwd(),'static', image.filename)  # 拼接文件绝对路径
         #image_data = open(imagename, secure_filename(image.filename)).read()  # 将文件路径存储到数据库中
-        news = News(title=form.title.data, content=form.content.data, image=image_data)
+        news = News(title=form.title.data, content=form.content.data, image=image_data, author_id=current_user.id)
         db.session.add(news)
         db.session.commit()
         return redirect(url_for('index'))
@@ -229,9 +233,13 @@ def picture(news_id):
 
 
 
-@app.route('/index/fakenews')
-def your_function():
-    return render_template('fakenews.html.j2')
+@app.route('/fakenews/<int:news_id>')
+def fakenews(news_id):
+    news = News.query.get(news_id)
+    if news is None:
+        return "News not found", 404
+    return render_template('fakenews.html', news=news)
+
 
 posts = [
     {
