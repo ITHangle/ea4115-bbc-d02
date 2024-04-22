@@ -1,6 +1,6 @@
 {% extends "searchbase.html.j2" %}
 {% block app_content %}
-    <img src="{{ url_for('static', filename='profile_pics/') }}" alt="Profile Picture">
+    <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image">
     <h1>{{ news.title }}</h1>
     <p>{{ news.content }}</p>
 
