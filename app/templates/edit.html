@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+{% extends "searchbase.html.j2" %}
 
 {% block content %}
     <h1>Edit News</h1>
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <p>
             {{ form.title.label }}<br>
@@ -11,6 +11,9 @@
         <p>
             {{ form.content.label }}<br>
             {{ form.content(cols=32, rows=4) }}
+        </p>
+        <p>
+            <input type="file" name="image">
         </p>
         <p>{{ form.submit() }}</p>
     </form>

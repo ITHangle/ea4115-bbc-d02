@@ -207,7 +207,7 @@ def perform_search(query):
     return results
 
 
-
+#提交新闻
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():          #提交新闻表单包title内容和图片
     form = NewsForm()
@@ -222,6 +222,22 @@ def submit():          #提交新闻表单包title内容和图片
         return redirect(url_for('index'))
     return render_template('submit.html', form=form)
 
+# 更新新闻
+@app.route('/edit/<int:news_id>', methods=['GET', 'POST'])
+def edit(news_id):
+    news = News.query.get(news_id)
+    if current_user.username != news.author.username:
+        return "You are not authorized to edit this news."
+    form = NewsForm()
+    if form.validate_on_submit():
+        news.title = form.title.data
+        news.content = form.content.data
+        news.image =  request.files['image'].read()
+        db.session.commit()
+        return redirect(url_for('news_detail', news_id=news.id))
+    form.title.data = news.title
+    form.content.data = news.content
+    return render_template('edit.html', form=form)
 
 @app.route('/picture/<int:news_id>')  # 将2进制图片数据转为图片
 def picture(news_id):
@@ -232,29 +248,9 @@ def picture(news_id):
 @app.route('/news/<int:news_id>')
 def news_detail(news_id):
     news = News.query.get(news_id)
-    if news is None:
-        abort(404)  # 如果找不到新闻，返回 404 错误
     return render_template('fakenews.html.j2', news=news)
 
-# 更新新闻
-@app.route('/edit/<int:news_id>', methods=['GET', 'POST'])
-def edit(news_id):
-    news = News.query.get(news_id)
-    if news is None:
-        abort(404)  # 如果找不到新闻，返回 404 错误
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    if news.author.username != session['username']:
-        return "You are not authorized to edit this news."
-    form = NewsForm()
-    if form.validate_on_submit():
-        news.title = form.title.data
-        news.content = form.content.data
-        db.session.commit()
-        return redirect(url_for('news_detail', news_id=news.id))
-    form.title.data = news.title
-    form.content.data = news.content
-    return render_template('edit.html', form=form)
+
 
 # 删除新闻
 @app.route('/delete/<int:news_id>', methods=['POST'])
