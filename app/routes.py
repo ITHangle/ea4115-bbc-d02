@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 import io
-from flask import render_template, flash, redirect, url_for, request, g, send_file
+from flask import render_template, flash, redirect, session, url_for, request, g, send_file
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
@@ -208,7 +208,7 @@ def perform_search(query):
 
 
 
-@app.route('/submit', methods=['GET', 'POST'])  # 新增的路由
+@app.route('/submit', methods=['GET', 'POST'])
 def submit():          #提交新闻表单包title内容和图片
     form = NewsForm()
     if form.validate_on_submit():
@@ -228,8 +228,6 @@ def picture(news_id):
     news = News.query.get(news_id)
     if news and news.image:
         return send_file(io.BytesIO(news.image), mimetype='image/jpg')
-    else:
-        abort(404)  # 如果没有找到新闻或图片，返回 404 错误
 
 @app.route('/news/<int:news_id>')
 def news_detail(news_id):
@@ -237,3 +235,38 @@ def news_detail(news_id):
     if news is None:
         abort(404)  # 如果找不到新闻，返回 404 错误
     return render_template('fakenews.html.j2', news=news)
+
+# 更新新闻
+@app.route('/edit/<int:news_id>', methods=['GET', 'POST'])
+def edit(news_id):
+    news = News.query.get(news_id)
+    if news is None:
+        abort(404)  # 如果找不到新闻，返回 404 错误
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    if news.author.username != session['username']:
+        return "You are not authorized to edit this news."
+    form = NewsForm()
+    if form.validate_on_submit():
+        news.title = form.title.data
+        news.content = form.content.data
+        db.session.commit()
+        return redirect(url_for('news_detail', news_id=news.id))
+    form.title.data = news.title
+    form.content.data = news.content
+    return render_template('edit.html', form=form)
+
+# 删除新闻
+@app.route('/delete/<int:news_id>', methods=['POST'])
+@login_required
+def delete_news(news_id):
+    news = News.query.get(news_id)
+    if news is None:
+        abort(404)  # If news is not found, return 404 error
+    if news.author != current_user:
+        flash("You are not authorized to delete this news.")
+        return redirect(url_for('news_detail', news_id=news.id))
+    db.session.delete(news)
+    db.session.commit()
+    flash("News deleted successfully.")
+    return redirect(url_for('index'))

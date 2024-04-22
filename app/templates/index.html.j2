@@ -4,16 +4,23 @@
 
     <h1>{{ _('Hi, %(username)s! Welcome to bbc news!', username=current_user.username) }}</h1>
     {% for news in news_list %}
-            <ul class="pager new1">
-                <a href="/index/fakenews">
-                <p><img src="{{ url_for('picture', news_id=news.id) }}" alt="News image", width = 130px, height = 130px></p>
-                <h2><a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a></h2>
-                <p>{{ news.content }}</p></a>
-                <p>{{ _('author：%(username)s', username=news.author.username) }}</p>
-                <a href="/index/edit"><p>Edit</p></a>
-                <a href="/delete"></a><p>Delete</p></a>
-            </ul>
+        <div class="card">
+            <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image">
+            <div class="card-body">
+                <h2 class="card-title"><a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a></h2>
+                <p class="card-text">{{ news.content }}</p>
+                <p class="card-text">{{ _('author：%(username)s', username=news.author.username) }}</p>
+                {% if current_user.username == news.author.username %}
+                    <div class="d-flex">
+                        <a href="{{ url_for('edit', news_id=news.id) }}" class="btn btn-primary mr-2">Edit</a>
+                        <form method="POST" action="{{ url_for('delete_news', news_id=news.id) }}" class="d-inline">
+                            <input type="submit" value="Delete" class="btn btn-danger">
+                        </form>
+                    </div>
+                {% endif %}
 
+            </div>
+        </div>
     {% endfor %}
         <nav>
         <ul class="pager nav justify-content-between">
