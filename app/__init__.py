@@ -10,6 +10,7 @@ from flask_mail import Mail
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_babel import Babel
+from flask_ckeditor import CKEditor
 
 
 app = Flask(__name__)
@@ -23,6 +24,7 @@ mail = Mail(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 babel = Babel(app)
+ckeditor = CKEditor(app)
 
 if not app.debug:
     root = logging.getLogger()

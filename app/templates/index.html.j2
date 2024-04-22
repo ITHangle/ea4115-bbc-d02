@@ -42,6 +42,7 @@
         .card-body {
             width: 50%;
             padding: 20px;
+            flex-grow: 1;
         }
 
         .card-title {
@@ -114,7 +115,9 @@
         </div>
     {% for news in news_list %}
         <div class="card">
-            <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image">
+            {% if news.image %}
+                <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image">
+            {% endif %}
             <div class="card-body">
                 <h2 class="card-title"><a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a></h2>
                 <p class="card-text">{{ news.content }}</p>

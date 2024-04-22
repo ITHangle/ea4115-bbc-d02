@@ -33,6 +33,7 @@ fastjsonschema==2.16.2
 Flask==2.2.2
 Flask-Babel==2.0.0
 Flask-Bootstrap==3.3.7.1
+Flask-CKEditor==0.5.1
 Flask-Login==0.6.2
 Flask-Mail==0.9.1
 Flask-Migrate==4.0.0

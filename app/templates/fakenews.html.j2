@@ -1,6 +1,8 @@
 {% extends "searchbase.html.j2" %}
 {% block app_content %}
-    <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image">
+    {% if news.image %}
+        <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image">
+    {% endif %}
     <h1>{{ news.title }}</h1>
     <p>{{ news.content }}</p>
 

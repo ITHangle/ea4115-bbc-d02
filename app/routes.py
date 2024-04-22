@@ -12,6 +12,8 @@ from app.models import News, User, Post
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 from PIL import Image
+from flask_ckeditor import CKEditor
+
 
 
 @app.before_request
@@ -40,7 +42,6 @@ def index():
         if len(news.content) > 100:
             news.content = news.content[:100] + '...'
     return render_template('index.html.j2', form=form, news_list=news_list, user=current_user)
-
 
 
 @app.route('/explore')
@@ -237,7 +238,7 @@ def edit(news_id):
         return redirect(url_for('news_detail', news_id=news.id))
     form.title.data = news.title
     form.content.data = news.content
-    return render_template('edit.html', form=form)
+    return render_template('submit.html', form=form, news=news)
 
 @app.route('/picture/<int:news_id>')  # 将2进制图片数据转为图片
 def picture(news_id):

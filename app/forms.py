@@ -1,10 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, \
+from wtforms import FileField, StringField, PasswordField, BooleanField, SubmitField, \
     TextAreaField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, \
     Length
 from flask_babel import _, lazy_gettext as _l
 from app.models import User
+from flask_wtf.file import FileField, FileAllowed
 
 
 class LoginForm(FlaskForm):
@@ -68,8 +69,8 @@ class PostForm(FlaskForm):
     post = TextAreaField(_l('Say something'), validators=[DataRequired()])
     submit = SubmitField(_l('Submit'))
 
-class NewsForm(FlaskForm):  # 定义NewsForm表单
+class NewsForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
-    content = TextAreaField('Content', validators=[DataRequired()])  # 新增的内容字段
+    content = TextAreaField('Content', validators=[DataRequired()])
+    images = FileField('Upload Images', validators=[FileAllowed(['jpg', 'png'])])
     submit = SubmitField('Submit')
-
