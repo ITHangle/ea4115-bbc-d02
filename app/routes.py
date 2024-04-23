@@ -210,18 +210,28 @@ def perform_search(query):
 
 #提交新闻
 @app.route('/submit', methods=['GET', 'POST'])
-def submit():          #提交新闻表单包title内容和图片
+def submit():
     form = NewsForm()
-    if form.validate_on_submit():
-        image = request.files['image']
-        image_data = image.read()
-        #imagename = os.path.join(os.getcwd(),'static', image.filename)  # 拼接文件绝对路径
-        #image_data = open(imagename, secure_filename(image.filename)).read()  # 将文件路径存储到数据库中
-        news = News(title=form.title.data, content=form.content.data, image=image_data, author_id=current_user.id)
-        db.session.add(news)
-        db.session.commit()
-        return redirect(url_for('index'))
-    return render_template('submit.html', form=form)
+    if request.method == "POST":
+        if 'editor' in request.form:
+            user = current_user
+            # 创建一个新的新闻对象
+            image = request.files['image']
+            image_data = image.read()
+            news = News(title=form.title.data, author=user, image=image_data, content=request.form['editor'])
+            # 将新的新闻对象添加到数据库会话中
+            db.session.add(news)
+            # 提交会话
+            db.session.commit()
+            return "Form submitted", 200
+        else:
+            print("No 'editor' field in the submitted form.")
+            return "No 'editor' field in the submitted form", 400
+    else:
+        return render_template('submit.html', form=form)
+
+
+
 
 # 更新新闻
 @app.route('/edit/<int:news_id>', methods=['GET', 'POST'])

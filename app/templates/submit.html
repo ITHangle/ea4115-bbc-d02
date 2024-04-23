@@ -36,10 +36,11 @@
 </head>
 <body>
 <form method="POST" action="{{ url_for('edit', news_id=news.id) if news else url_for('submit') }}" enctype="multipart/form-data">
+    {{ form.csrf_token }}
     <h2>{{ 'Edit News' if news else 'Submit News' }}</h2>
     <input type="text" name="title" placeholder="Enter title here" value="{{ news.title if news }}">
     {{ ckeditor.create(name='editor', value=news.content if news) }}
-    <input type="file" name="images" accept="image/*" multiple>
+    <input type="file" name="image" accept="image/*" multiple>
     <input type="submit" value="{{ 'Update' if news else 'Submit' }}">
 </form>
 </body>
