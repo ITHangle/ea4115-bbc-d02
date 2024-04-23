@@ -231,8 +231,6 @@ def submit():
         return render_template('submit.html', form=form)
 
 
-
-
 # 更新新闻
 @app.route('/edit/<int:news_id>', methods=['GET', 'POST'])
 def edit(news_id):
@@ -240,15 +238,26 @@ def edit(news_id):
     if current_user.username != news.author.username:
         return "You are not authorized to edit this news."
     form = NewsForm()
-    if form.validate_on_submit():
-        news.title = form.title.data
-        news.content = form.content.data
-        news.image =  request.files['image'].read()
-        db.session.commit()
-        return redirect(url_for('news_detail', news_id=news.id))
-    form.title.data = news.title
-    form.content.data = news.content
-    return render_template('submit.html', form=form, news=news)
+    if request.method == "POST":
+        if 'editor' in request.form:
+            # 更新新闻对象的属性
+            news.title = form.title.data
+            news.content = request.form['editor']
+            # 检查用户是否上传了新的图片
+            if 'image' in request.files and request.files['image'].filename != '':
+                news.image = request.files['image'].read()
+            # 提交会话
+            db.session.commit()
+            return "News updated", 200
+        else:
+            print("No 'editor' field in the submitted form.")
+            return "No 'editor' field in the submitted form", 400
+    else:
+        form.title.data = news.title
+        form.content.data = news.content
+        return render_template('submit.html', form=form, news=news)
+
+
 
 @app.route('/picture/<int:news_id>')  # 将2进制图片数据转为图片
 def picture(news_id):
