@@ -208,22 +208,18 @@ def perform_search(query):
     return results
 
 
-#提交新闻
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():
     form = NewsForm()
     if request.method == "POST":
         if 'editor' in request.form:
             user = current_user
-            # 创建一个新的新闻对象
             image = request.files['image']
             image_data = image.read()
             news = News(title=form.title.data, author=user, image=image_data, content=request.form['editor'])
-            # 将新的新闻对象添加到数据库会话中
             db.session.add(news)
-            # 提交会话
             db.session.commit()
-            return "Form submitted", 200
+            return redirect(url_for('index'))
         else:
             print("No 'editor' field in the submitted form.")
             return "No 'editor' field in the submitted form", 400
@@ -231,7 +227,6 @@ def submit():
         return render_template('submit.html', form=form)
 
 
-# 更新新闻
 @app.route('/edit/<int:news_id>', methods=['GET', 'POST'])
 def edit(news_id):
     news = News.query.get(news_id)
@@ -240,15 +235,12 @@ def edit(news_id):
     form = NewsForm()
     if request.method == "POST":
         if 'editor' in request.form:
-            # 更新新闻对象的属性
             news.title = form.title.data
             news.content = request.form['editor']
-            # 检查用户是否上传了新的图片
             if 'image' in request.files and request.files['image'].filename != '':
                 news.image = request.files['image'].read()
-            # 提交会话
             db.session.commit()
-            return "News updated", 200
+            return redirect(url_for('index'))
         else:
             print("No 'editor' field in the submitted form.")
             return "No 'editor' field in the submitted form", 400
@@ -259,7 +251,7 @@ def edit(news_id):
 
 
 
-@app.route('/picture/<int:news_id>')  # 将2进制图片数据转为图片
+@app.route('/picture/<int:news_id>')
 def picture(news_id):
     news = News.query.get(news_id)
     if news and news.image:
@@ -272,13 +264,12 @@ def news_detail(news_id):
 
 
 
-# 删除新闻
 @app.route('/delete/<int:news_id>', methods=['POST'])
 @login_required
 def delete_news(news_id):
     news = News.query.get(news_id)
     if news is None:
-        abort(404)  # If news is not found, return 404 error
+        abort(404)
     if news.author != current_user:
         flash("You are not authorized to delete this news.")
         return redirect(url_for('news_detail', news_id=news.id))

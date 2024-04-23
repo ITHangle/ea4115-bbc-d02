@@ -120,6 +120,12 @@
             {% endif %}
             <div class="card-body">
                 <h2 class="card-title"><a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a></h2>
+                <div>
+                    {% if news and news.created_at %}
+                        <span style="display: inline-block; width: 25%;">发表于：{{ news.created_at.strftime('%Y-%m-%d') }}</span>
+                        <span style="display: inline-block; width: 25%;">更改于：{{ news.updated_at.strftime('%Y-%m-%d') }}</span>
+                    {% endif %}
+                </div>
                 <p class="card-text">{{ news.content }}</p>
                 <p class="card-text">{{ _('author：%(username)s', username=news.author.username) }}</p>
                 {% if current_user.username == news.author.username %}

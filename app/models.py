@@ -102,3 +102,5 @@ class News(db.Model):  # 定义News模型
     content = db.Column(db.Text, nullable=False)
     image = db.Column(LargeBinary)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
