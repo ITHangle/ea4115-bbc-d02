@@ -8,7 +8,7 @@ from flask_babel import _, get_locale
 from app import app, db
 from app.forms import LoginForm, NewsForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm
-from app.models import News, User, Post
+from app.models import News, Tag, User, Post
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -33,7 +33,9 @@ def index():
         image = request.files['image']
         filename = secure_filename(image.filename)
         image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        news = News(title=form.title.data, content=form.content.data, image=filename, author=current_user)
+        tag_names = form.tags.data.split(',')
+        tags = [Tag(name=name) for name in tag_names]
+        news = News(title=form.title.data, content=form.content.data, image=filename, author=current_user, tags=tags)
         db.session.add(news)
         db.session.commit()
         return redirect(url_for('home'))
@@ -216,7 +218,9 @@ def submit():
             user = current_user
             image = request.files['image']
             image_data = image.read()
-            news = News(title=form.title.data, author=user, image=image_data, content=request.form['editor'])
+            tag_names = form.tags.data.split(',')
+            tags = [Tag(name=name) for name in tag_names]
+            news = News(title=form.title.data, author=user, image=image_data, content=request.form['editor'], tags=tags)
             db.session.add(news)
             db.session.commit()
             return redirect(url_for('index'))

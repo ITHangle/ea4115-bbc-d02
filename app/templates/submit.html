@@ -40,6 +40,7 @@
     <h2>{{ 'Edit News' if news else 'Submit News' }}</h2>
     <input type="text" name="title" placeholder="Enter title here" value="{{ news.title if news }}">
     {{ ckeditor.create(name='editor', value=news.content if news) }}
+    <input type="text" name="tags" placeholder="Enter tags here, separated by commas" value="{{ news.tags|join(', ') if news }}">
     <input type="file" name="image" accept="image/*" multiple>
     <input type="submit" value="{{ 'Update' if news else 'Submit' }}">
 </form>
