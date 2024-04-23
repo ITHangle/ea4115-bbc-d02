@@ -109,12 +109,12 @@
 {% block app_content %}
     <h1>{{ _('Hi, %(username)s! Welcome to bbc news!', username=current_user.username) }}</h1>
     <div class="profile">
-            <img src="{{ url_for('static', filename='profile_pics/') }}" alt="Profile Picture">
-            <h1>{{ user.username }}</h1>
-            <p>{{ user.signature }}</p>
-            <p>文章：{{ user.posts.count() }}</p>
-            <p>追踪者：{{ user.followers.count() }}</p>
-        </div>
+        <img src="{{ url_for('static', filename='profile_pics/') }}" alt="Profile Picture">
+        <h1>{{ user.username }}</h1>
+        <p>{{ user.signature }}</p>
+        <p>文章：{{ user.news.count() }}</p>
+        <p>追踪者：{{ user.followers.count() }}</p>
+    </div>
     {% for news in news_list %}
         <div class="card">
             {% if news.image %}

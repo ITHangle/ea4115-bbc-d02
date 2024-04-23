@@ -272,7 +272,6 @@ def edit(news_id):
 
 
 
-
 @app.route('/picture/<int:news_id>')
 def picture(news_id):
     news = News.query.get(news_id)
