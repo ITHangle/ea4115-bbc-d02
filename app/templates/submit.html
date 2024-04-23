@@ -35,14 +35,27 @@
     </style>
 </head>
 <body>
-<form method="POST" action="{{ url_for('edit', news_id=news.id) if news else url_for('submit') }}" enctype="multipart/form-data">
-    {{ form.csrf_token }}
-    <h2>{{ 'Edit News' if news else 'Submit News' }}</h2>
-    <input type="text" name="title" placeholder="Enter title here" value="{{ news.title if news }}">
-    {{ ckeditor.create(name='editor', value=news.content if news) }}
-    <input type="text" name="tags" placeholder="Enter tags here, separated by commas" value="{{ news.tags|join(', ') if news }}">
-    <input type="file" name="image" accept="image/*" multiple>
-    <input type="submit" value="{{ 'Update' if news else 'Submit' }}">
-</form>
+    <form method="POST" action="{{ url_for('edit', news_id=news.id) if news.id else url_for('submit') }}" enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        <h2>{{ 'Edit News' if news.id else 'Submit News' }}</h2>
+        <input type="text" name="title" placeholder="Enter title here" value="{{ news.title if news.id }}">
+        {{ ckeditor.create(name='editor', value=news.content if news.id) }}
+        <div id="tags">
+            {% for tag in news.tags if news.id %}
+            <input type="text" name="tags" placeholder="Enter a tag here" value="{{ tag_name }}">
+            {% endfor %}
+        </div>
+        <button type="button" onclick="addTagField()">Add another tag</button>
+        <input type="file" name="image" accept="image/*" multiple>
+        <input type="submit" value="{{ 'Update' if news.id else 'Submit' }}">
+    </form>
+    <script>
+    function addTagField() {
+        var div = document.createElement('div');
+        div.innerHTML = '<input type="text" name="tags" placeholder="Enter a tag here">';
+        document.getElementById('tags').appendChild(div);
+    }
+    </script>
 </body>
 </html>
+    

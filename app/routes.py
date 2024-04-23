@@ -209,7 +209,6 @@ def perform_search(query):
     results = [f"Result for '{query}': {i}" for i in range(3)]
     return results
 
-
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():
     form = NewsForm()
@@ -218,17 +217,24 @@ def submit():
             user = current_user
             image = request.files['image']
             image_data = image.read()
-            tag_names = form.tags.data.split(',')
-            tags = [Tag(name=name) for name in tag_names]
+            tag_names = request.form.getlist('tags')
+            if not tag_names or all(name == '' for name in tag_names):
+                return "<script>alert('Tags cannot be empty. Please enter at least one tag.'); window.location = '/submit';</script>"
+            tags = []
+            for name in tag_names:
+                name = '#' + name
+                tag = Tag.query.filter_by(name=name).first()
+                if tag is None:
+                    tag = Tag(name=name)
+                tags.append(tag)
             news = News(title=form.title.data, author=user, image=image_data, content=request.form['editor'], tags=tags)
             db.session.add(news)
             db.session.commit()
             return redirect(url_for('index'))
-        else:
-            print("No 'editor' field in the submitted form.")
-            return "No 'editor' field in the submitted form", 400
     else:
-        return render_template('submit.html', form=form)
+        news = News()
+        news.tags = []
+        return render_template('submit.html', form=form, news=news)
 
 
 @app.route('/edit/<int:news_id>', methods=['GET', 'POST'])
@@ -241,17 +247,29 @@ def edit(news_id):
         if 'editor' in request.form:
             news.title = form.title.data
             news.content = request.form['editor']
+            if 'tags' in request.form and request.form['tags'] != '':
+                tag_names = request.form.getlist('tags')
+                if not tag_names or all(name == '' for name in tag_names):
+                    return "<script>alert('Tags cannot be empty. Please enter at least one tag.'); window.location = '/edit/" + str(news_id) + "';</script>"
+                tags = []
+                for name in tag_names:
+                    name = '#' + name
+                    tag = Tag.query.filter_by(name=name).first()
+                    if tag is None:
+                        tag = Tag(name=name)
+                    tags.append(tag)
+                if tags:
+                    news.tags = tags
             if 'image' in request.files and request.files['image'].filename != '':
                 news.image = request.files['image'].read()
             db.session.commit()
             return redirect(url_for('index'))
-        else:
-            print("No 'editor' field in the submitted form.")
-            return "No 'editor' field in the submitted form", 400
     else:
         form.title.data = news.title
         form.content.data = news.content
-        return render_template('submit.html', form=form, news=news)
+        news_tags = [tag.name for tag in news.tags]
+        return render_template('submit.html', form=form, news=news, news_tags=news_tags)
+
 
 
 
@@ -265,7 +283,6 @@ def picture(news_id):
 def news_detail(news_id):
     news = News.query.get(news_id)
     return render_template('fakenews.html.j2', news=news)
-
 
 
 @app.route('/delete/<int:news_id>', methods=['POST'])
