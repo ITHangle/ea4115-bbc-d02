@@ -185,8 +185,11 @@ def unfollow(username):
 def search():
     if request.method == 'POST':
         query = request.form['query']
-        results = News.query.filter(News.title.contains(query)).all()
-        return render_template('search.html', results=results)
+        if query: 
+            results = News.query.filter(News.title.contains(query)).all()
+            return render_template('search.html', results=results)
+        else:
+            return render_template('search.html', message="You did not enter any search terms.")
     return render_template('search.html')
 
 
@@ -194,6 +197,7 @@ def search():
 def perform_search(query):
     results = [f"Result for '{query}': {i}" for i in range(3)]
     return results
+
 
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():

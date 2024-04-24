@@ -2,13 +2,32 @@
 <html>
 <head>
     <title>Search</title>
+    <script>
+        window.onload = function() {
+            document.getElementById('submitButton').onclick = function() {
+                var query = document.getElementById('search-query').value;
+                if (query == '') {
+                    alert('You did not find anything');
+                    return false;  // 阻止表单提交
+                }
+            };
+        };
+        </script>
+        
 </head>
 <body>
     <h1>Search</h1>
     <form method="POST">
         <p>
-            <input type="text" name="query" size="32">
-            <input type="submit" value="Search">
+            <input type="text" id="searchTerm" name="query" placeholder="Search news, topic and more" size="32">
+            <button id="submitButton" type="submit" class="btn btn-def navbar-btn">
+                <span data-testid="button-icon-wrapper" class="sc-d5dfecf2-0 cNtAye" data-toggle="modal" data-target="#searchModal"><!--$-->
+                    <svg viewBox="0 0 32 32" width="1em" height="1em" category="actions" icon="search" class="sc-1097f7fe-0 jmthjj">
+                        <path d="m30.6 28.1-8.3-8.3c1.5-2 2.4-4.4 2.4-7.2C24.7 6 19.6 1 13 1S1.4 6.1 1.4 12.7 6.5 24.3 13 24.3c2.3 0 4.4-.6 6.2-1.8l8.5 8.5 2.9-2.9zM4 12.6c0-5.2 3.9-9.1 9-9.1s9 3.9 9 9.1c0 5.2-3.9 9.1-9 9.1s-9-3.9-9-9.1z">
+                        </path>
+                    </svg><!--/$-->
+                </span>
+            </button>
         </p>
     </form>
     {% if results %}
