@@ -259,29 +259,29 @@ def edit(news_id):
         return render_template('submit.html', form=form, news=news, news_tags=news_tags)
 
 
-@app.route('/picture/<int:news_id>')
+@app.route('/picture/<int:news_id>')    #图片解码
 def picture(news_id):
     news = News.query.get(news_id)
     if news and news.image:
         return send_file(io.BytesIO(news.image), mimetype='image/jpg')
 
-@app.route('/news/<int:news_id>', methods=['GET', 'POST'])
+@app.route('/news/<int:news_id>', methods=['GET', 'POST'])       #新闻主页
 def news_detail(news_id):
     page = request.args.get('page', 1, type=int)
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(body=form.post.data, author=current_user)
+        post = Post(body=form.post.data, author=current_user, news_id=news_id)  # Set the news_id here
         db.session.add(post)
         db.session.commit()
         flash(_('Your post is now live!'))
     news = News.query.get(news_id)
-    posts = Post.query.order_by(Post.timestamp.desc()).paginate(
-        page=page, per_page=app.config["POSTS_PER_PAGE"], error_out=False)
+    posts = Post.query.filter_by(news_id=news_id).order_by(Post.timestamp.desc()).paginate(page=page, per_page=app.config["POSTS_PER_PAGE"], error_out=False)
     next_url = url_for('news_detail', news_id=news_id, page=posts.next_num) if posts.has_next else None
     prev_url = url_for('news_detail', news_id=news_id, page=posts.prev_num) if posts.has_prev else None
     return render_template('fakenews.html.j2', news=news,
                            posts=posts.items, next_url=next_url,
                            prev_url=prev_url, form=form)  # Pass 'form' to the template
+
 
 
 @app.route('/delete/<int:news_id>', methods=['POST'])

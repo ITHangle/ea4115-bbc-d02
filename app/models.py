@@ -90,6 +90,7 @@ class Post(db.Model):
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id'))
 
     def __repr__(self) -> str:
         return f'<Post {self.body}>'
@@ -115,3 +116,4 @@ class News(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     tags = db.relationship('Tag', secondary=tags, lazy='subquery',backref=db.backref('news', lazy=True))
+    posts = db.relationship('Post', backref='news', lazy='dynamic')
