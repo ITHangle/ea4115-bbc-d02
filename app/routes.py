@@ -45,20 +45,6 @@ def index():
     return render_template('index.html.j2', form=form, news_list=news_list, user=current_user)
 
 
-@app.route('/explore')
-@login_required
-def explore():
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.timestamp.desc()).paginate(
-        page=page, per_page=app.config["POSTS_PER_PAGE"], error_out=False)
-    next_url = url_for(
-        'explore', page=posts.next_num) if posts.next_num else None
-    prev_url = url_for(
-        'explore', page=posts.prev_num) if posts.prev_num else None
-    return render_template('index.html.j2', title=_('Explore'),
-                           posts=posts.items, next_url=next_url,
-                           prev_url=prev_url)
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -198,8 +184,11 @@ def unfollow(username):
 def search():
     if request.method == 'POST':
         query = request.form['query']
-        results = News.query.filter(News.title.contains(query)).all()
-        return render_template('search.html', results=results)
+        if query: 
+            results = News.query.filter(News.title.contains(query)).all()
+            return render_template('search.html', results=results)
+        else:
+            return render_template('search.html', message="You did not enter any search terms.")
     return render_template('search.html')
 
 
@@ -276,10 +265,23 @@ def picture(news_id):
     if news and news.image:
         return send_file(io.BytesIO(news.image), mimetype='image/jpg')
 
-@app.route('/news/<int:news_id>')
+@app.route('/news/<int:news_id>', methods=['GET', 'POST'])
 def news_detail(news_id):
+    page = request.args.get('page', 1, type=int)
+    form = PostForm()
+    if form.validate_on_submit():
+        post = Post(body=form.post.data, author=current_user)
+        db.session.add(post)
+        db.session.commit()
+        flash(_('Your post is now live!'))
     news = News.query.get(news_id)
-    return render_template('fakenews.html.j2', news=news)
+    posts = Post.query.order_by(Post.timestamp.desc()).paginate(
+        page=page, per_page=app.config["POSTS_PER_PAGE"], error_out=False)
+    next_url = url_for('news_detail', news_id=news_id, page=posts.next_num) if posts.has_next else None
+    prev_url = url_for('news_detail', news_id=news_id, page=posts.prev_num) if posts.has_prev else None
+    return render_template('fakenews.html.j2', news=news,
+                           posts=posts.items, next_url=next_url,
+                           prev_url=prev_url, form=form)  # Pass 'form' to the template
 
 
 @app.route('/delete/<int:news_id>', methods=['POST'])
