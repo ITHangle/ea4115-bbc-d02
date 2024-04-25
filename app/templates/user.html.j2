@@ -14,7 +14,9 @@
                 </p>
                 {% if user == current_user %}
                     <p>
-                        <a href="{{ url_for('edit_profile') }}">{{ _('Edit your profile') }}</a>
+                        <a href="{{ url_for('edit_profile') }}">{{ _('Edit your profile') }}</a> 
+                        &nbsp &nbsp
+                        <a href="{{ url_for('BAN_tags') }}">{{ _('Edit you BAN tag') }}</a> 
                     </p>
                 {% elif not current_user.is_following(user) %}
                     <p>

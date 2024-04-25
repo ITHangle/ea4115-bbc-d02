@@ -131,8 +131,10 @@
                 <p class="card-text">{{ _('author：%(username)s', username=news.author.username) }}</p>
                 <p> 
                     {% for tag in news.tags %}
+                        <a href="{{ url_for('BAN_tags', tag_id=tag.id, news_id=news.id) }}">X</a>  
                         {{ tag.name }}
                     {% endfor %}
+
                 </p>
                 <p class="card-text">{{ news.content }}</p>
                 {% if current_user.username == news.author.username %}

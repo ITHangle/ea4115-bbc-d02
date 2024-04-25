@@ -8,7 +8,7 @@ from flask_babel import _, get_locale
 from app import app, db
 from app.forms import LoginForm, NewsForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm
-from app.models import News, Tag, User, Post
+from app.models import News, Tag, User, Post, BANTag
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -38,11 +38,24 @@ def index():
         db.session.add(news)
         db.session.commit()
         return redirect(url_for('home'))
+
+    # 获取所有的新闻
     news_list = News.query.all()
+    # 获取所有的 BANTag 对象
+    ban_tags = BANTag.query.all()
+
+    # 创建一个包含所有被 BANTag 记录的标签的集合
+    ban_tag_set = {ban_tag.tag for ban_tag in ban_tags}
+
+    # 过滤掉那些带有被 BANTag 记录的标签的新闻
+    news_list = [news for news in news_list if not any(tag in ban_tag_set for tag in news.tags)]
+
     for news in news_list:
         if len(news.content) > 100:
             news.content = news.content[:100] + '...'
-    return render_template('index.html.j2', form=form, news_list=news_list, user=current_user)
+    return render_template('index.html.j2', form=form, news_list=news_list, user=current_user, ban_tags=ban_tags)
+
+
 
 
 
@@ -297,3 +310,30 @@ def delete_news(news_id):
     db.session.commit()
     flash("News deleted successfully.")
     return redirect(url_for('index'))
+
+
+@app.route('/BAN_tags', methods=['GET', 'POST'])
+@login_required
+def BAN_tags():
+    tag_id = request.args.get('tag_id', type=int)
+    news_id = request.args.get('news_id', type=int)
+    ban_tag = BANTag(tag_id=tag_id, news_id=news_id, user_id=current_user.id)
+    db.session.add(ban_tag)
+    db.session.commit()
+    ban_tags = BANTag.query.all()
+    return render_template('BAN_tags.html.j2', ban_tags=ban_tags)
+
+
+@app.route('/delete_ban_tag/<int:ban_tag_id>', methods=['POST'])
+@login_required
+def delete_ban_tag(ban_tag_id):
+    ban_tag = BANTag.query.get(ban_tag_id)
+    if ban_tag is not None:
+        db.session.delete(ban_tag)
+        db.session.commit()
+    ban_tags = BANTag.query.all()  # 重新获取所有的ban_tags
+    return render_template('BAN_tags.html.j2', ban_tags=ban_tags)  # 用更新后的ban_tags渲染模板
+
+
+
+

@@ -117,3 +117,14 @@ class News(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     tags = db.relationship('Tag', secondary=tags, lazy='subquery',backref=db.backref('news', lazy=True))
     posts = db.relationship('Post', backref='news', lazy='dynamic')
+
+
+class BANTag(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))  # 从 'tags.name' 更改为 'tag.id'
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    # 添加关系
+    tag = db.relationship('Tag', backref=db.backref('ban_tags', lazy='dynamic'))
+    news = db.relationship('News', backref=db.backref('ban_tags', lazy='dynamic'))
