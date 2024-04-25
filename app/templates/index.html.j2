@@ -134,9 +134,8 @@
                         <a href="{{ url_for('BAN_tags', tag_id=tag.id, news_id=news.id) }}">X</a>  
                         {{ tag.name }}
                     {% endfor %}
-
                 </p>
-                <p class="card-text">{{ news.content }}</p>
+                
                 {% if current_user.username == news.author.username %}
                     <div class="d-flex">
                         <a href="{{ url_for('edit', news_id=news.id) }}" class="btn btn-primary mr-2">Edit</a>
