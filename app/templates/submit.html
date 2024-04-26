@@ -45,11 +45,6 @@
             <input type="text" name="tags" placeholder="Enter a tag here" value="{{ tag_name }}">
             {% endfor %}
         </div>
-        <select name="news_type">
-            <option value="Sport">Sport</option>
-            <option value="Travel">Travel</option>
-            <option value="Business">Business</option>
-        </select>
         <button type="button" onclick="addTagField()">Add another tag</button>
         <input type="file" name="image" accept="image/*" multiple>
         <input type="submit" value="{{ 'Update' if news.id else 'Submit' }}">
