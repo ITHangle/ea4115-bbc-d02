@@ -17,6 +17,11 @@ followers = db.Table(
     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
 )
 
+blocks = db.Table('blocks',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('news_id', db.Integer, db.ForeignKey('news.id'), primary_key=True)
+)
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +32,8 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(140))
     news = db.relationship('News', backref='author', lazy='dynamic')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    blocked_news = db.relationship('News', secondary=blocks, lazy='subquery',
+        backref=db.backref('blocked_by', lazy=True))
     followed = db.relationship(
         'User', secondary=followers,
         primaryjoin=(followers.c.follower_id == id),

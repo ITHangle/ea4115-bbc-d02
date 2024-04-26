@@ -41,6 +41,7 @@ def index():
 
     # 获取所有的新闻
     news_list = News.query.all()
+
     # 获取所有的 BANTag 对象
     ban_tags = BANTag.query.all()
 
@@ -50,12 +51,13 @@ def index():
     # 过滤掉那些带有被 BANTag 记录的标签的新闻
     news_list = [news for news in news_list if not any(tag in ban_tag_set for tag in news.tags)]
 
+    # 过滤掉被当前用户屏蔽的新闻
+    news_list = [news for news in news_list if news not in current_user.blocked_news]
+
     for news in news_list:
         if len(news.content) > 100:
             news.content = news.content[:100] + '...'
     return render_template('index.html.j2', form=form, news_list=news_list, user=current_user, ban_tags=ban_tags)
-
-
 
 
 
@@ -263,7 +265,6 @@ def edit(news_id):
             if 'image' in request.files and request.files['image'].filename != '':
                 news.image = request.files['image'].read()
             db.session.commit()
-            news.update()
             return redirect(url_for('index'))
     else:
         form.title.data = news.title
@@ -335,5 +336,15 @@ def delete_ban_tag(ban_tag_id):
     return render_template('BAN_tags.html.j2', ban_tags=ban_tags)  # 用更新后的ban_tags渲染模板
 
 
-
-
+@app.route('/block/<int:news_id>')
+def block(news_id):
+    news = News.query.get(news_id)
+    if news is not None:
+        if current_user == news.author:
+            flash("You can't shield yourself.")
+            return redirect(url_for('index'))
+        else:
+            current_user.blocked_news.append(news)
+            db.session.commit()
+            return redirect(url_for('index'))
+    return redirect(url_for('index'))

@@ -104,12 +104,12 @@
         }
     </style>
 {% endblock %}
-
 {% import 'bootstrap/wtf.html' as wtf %}
 {% block app_content %}
     <h1>{{ _('Hi, %(username)s! Welcome to bbc news!', username=current_user.username) }}</h1>
     <div class="profile">
-        <img src="{{ url_for('static', filename='profile_pics/') }}" alt="Profile Picture">
+        <img src="{{ url_for('static', filename='profile_pics/') }}"
+             alt="Profile Picture">
         <h1>{{ user.username }}</h1>
         <p>{{ user.signature }}</p>
         <p>文章：{{ user.news.count() }}</p>
@@ -118,10 +118,14 @@
     {% for news in news_list %}
         <div class="card">
             {% if news.image %}
-                <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image">
+                <img class="card-img-top"
+                     src="{{ url_for('picture', news_id=news.id) }}"
+                     alt="News image">
             {% endif %}
             <div class="card-body">
-                <h2 class="card-title"><a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a></h2>
+                <h2 class="card-title">
+                    <a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a>
+                </h2>
                 <div>
                     {% if news and news.created_at %}
                         <span style="display: inline-block; width: 25%;">发表于：{{ news.created_at.strftime('%Y-%m-%d') }}</span>
@@ -129,22 +133,31 @@
                     {% endif %}
                 </div>
                 <p class="card-text">{{ _('author：%(username)s', username=news.author.username) }}</p>
-                <p> 
+                <p>
                     {% for tag in news.tags %}
                         <a href="{{ url_for('BAN_tags', tag_id=tag.id, news_id=news.id) }}">X</a>  
                         {{ tag.name }}
                     {% endfor %}
                 </p>
-                
                 {% if current_user.username == news.author.username %}
                     <div class="d-flex">
-                        <a href="{{ url_for('edit', news_id=news.id) }}" class="btn btn-primary mr-2">Edit</a>
-                        <form method="POST" action="{{ url_for('delete_news', news_id=news.id) }}" class="d-inline">
+                        <a href="{{ url_for('edit', news_id=news.id) }}"
+                           class="btn btn-primary mr-2">Edit</a>
+                        <form method="POST"
+                              action="{{ url_for('delete_news', news_id=news.id) }}"
+                              class="d-inline">
                             <input type="submit" value="Delete" class="btn btn-danger">
                         </form>
+                        <a href="{{ url_for('block', news_id=news.id) }}"
+                           class="btn btn-warning">Block</a>
                     </div>
-                {% endif %}
-            </div>
+                {% else %}
+                    <div class="d-flex">
+                        <a href="{{ url_for('block', news_id=news.id) }}"
+                           class="btn btn-warning">Block</a>
+                    </div>
+            {% endif %}
         </div>
-    {% endfor %}
+    </div>
+{% endfor %}
 {% endblock %}
