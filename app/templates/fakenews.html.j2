@@ -6,8 +6,8 @@
     {% endif %}
     <h1>{{ news.title }}</h1>
     <p>{{ news.content }}</p>
-    <p>Liked：{{ news.number_like }}</p>  # 显示点赞数
-    {{ wtf.quick_form(like_form) }}  # 显示点赞按钮
+    <p>Liked：{{ news.number_like }}</p>  
+    {{ wtf.quick_form(like_form) }}  
     {% if form %}
         {{ wtf.quick_form(form) }}
         <br/>
