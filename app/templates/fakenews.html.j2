@@ -6,12 +6,19 @@
     {% endif %}
     <h1>{{ news.title }}</h1>
     <p>{{ news.content }}</p>
-    <p>Liked：{{ news.number_like }}</p>  
-    {{ wtf.quick_form(like_form) }}  
-    {% if form %}
-        {{ wtf.quick_form(form) }}
-        <br/>
-    {% endif %}
+    <p>Liked：{{ news.number_like }}
+        <form method="POST" action="{{ url_for('like_news', news_id=news.id) }}">
+            <input type="submit" value="Like">
+        </form>
+    </p>  
+
+
+
+    <form method="POST" action="{{ url_for('news_detail', news_id=news.id) }}">
+        <textarea name="post" placeholder="Writedown something~" required></textarea>
+        <input type="submit" value="Post">
+    </form>
+
     {% for post in posts %}
         {% include "_post.html.j2" %}
     {% endfor %}
