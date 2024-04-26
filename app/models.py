@@ -113,6 +113,11 @@ tags = db.Table('tags',
     db.Column('news_id', db.Integer, db.ForeignKey('news.id'), primary_key=True)
 )
 
+class Liked(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    news = db.relationship('News', backref='likes')
     
 class News(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -124,7 +129,7 @@ class News(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow)
     tags = db.relationship('Tag', secondary=tags, lazy='subquery',backref=db.backref('news', lazy=True))
     posts = db.relationship('Post', backref='news', lazy='dynamic')
-
+    number_like = db.Column(db.Integer, default=0)  # 新增的点赞数属性
 
 class BANTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)

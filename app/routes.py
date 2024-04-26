@@ -7,8 +7,8 @@ from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from app import app, db
 from app.forms import LoginForm, NewsForm, RegistrationForm, EditProfileForm, PostForm, \
-    ResetPasswordRequestForm, ResetPasswordForm
-from app.models import News, Tag, User, Post, BANTag
+    ResetPasswordRequestForm, ResetPasswordForm, LikeForm
+from app.models import News, Tag, User, Post, BANTag, Liked
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -278,23 +278,34 @@ def picture(news_id):
     news = News.query.get(news_id)
     if news and news.image:
         return send_file(io.BytesIO(news.image), mimetype='image/jpg')
+    
 
-@app.route('/news/<int:news_id>', methods=['GET', 'POST'])       #新闻主页
+@app.route('/news/<int:news_id>', methods=['GET', 'POST'])#新闻主页
+
 def news_detail(news_id):
     page = request.args.get('page', 1, type=int)
     form = PostForm()
+    like_form = LikeForm()  # 新增的点赞表单
     if form.validate_on_submit():
-        post = Post(body=form.post.data, author=current_user, news_id=news_id)  # Set the news_id here
+        post = Post(body=form.post.data, author=current_user, news_id=news_id)
         db.session.add(post)
         db.session.commit()
         flash(_('Your post is now live!'))
+    elif like_form.validate_on_submit():  # 处理点赞表单提交
+        liked = Liked.query.filter_by(user_id=current_user.id, news_id=news_id).first()
+        if not liked:  # 如果用户没有点过赞
+            liked = Liked(user_id=current_user.id, news_id=news_id)
+            db.session.add(liked)
+            news = News.query.get(news_id)
+            news.number_like += 1  # 点赞数加一
+            db.session.commit()
     news = News.query.get(news_id)
     posts = Post.query.filter_by(news_id=news_id).order_by(Post.timestamp.desc()).paginate(page=page, per_page=app.config["POSTS_PER_PAGE"], error_out=False)
     next_url = url_for('news_detail', news_id=news_id, page=posts.next_num) if posts.has_next else None
     prev_url = url_for('news_detail', news_id=news_id, page=posts.prev_num) if posts.has_prev else None
     return render_template('fakenews.html.j2', news=news,
                            posts=posts.items, next_url=next_url,
-                           prev_url=prev_url, form=form)  # Pass 'form' to the template
+                           prev_url=prev_url, form=form, like_form=like_form)  # 将点赞表单传递给模板
 
 
 
@@ -348,3 +359,5 @@ def block(news_id):
             db.session.commit()
             return redirect(url_for('index'))
     return redirect(url_for('index'))
+
+

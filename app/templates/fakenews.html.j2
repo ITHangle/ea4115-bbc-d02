@@ -6,6 +6,8 @@
     {% endif %}
     <h1>{{ news.title }}</h1>
     <p>{{ news.content }}</p>
+    <p>Liked：{{ news.number_like }}</p>  # 显示点赞数
+    {{ wtf.quick_form(like_form) }}  # 显示点赞按钮
     {% if form %}
         {{ wtf.quick_form(form) }}
         <br/>
@@ -17,14 +19,14 @@
         <ul class="pager">
             <li class="previous{% if not prev_url %} disabled{% endif %}">
                 <a href="{{ prev_url or '#' }}">
-                    <span aria-hidden="true">&larr;</span> {{ _('Newer posts') }}
+                    <span aria-hidden="true">←</span> {{ _('Newer posts') }}
                 </a>
             </li>
             <li class="next{% if not next_url %} disabled{% endif %}">
                 <a href="{{ next_url or '#' }}">
-                    {{ _('Older posts') }} <span aria-hidden="true">&rarr;</span>
+                    {{ _('Older posts') }} <span aria-hidden="true">→</span>
                 </a>
             </li>
         </ul>
     </nav>
-{% endblock %}}
+{% endblock %}
