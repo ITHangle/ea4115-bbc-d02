@@ -100,6 +100,9 @@ class User(UserMixin, db.Model):
         ).filter(followers.c.follower_id == self.id)
         own = Post.query.filter_by(user_id=self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
+    
+    def is_bookmarked(self, news_id):
+        return Bookmark.query.filter_by(user_id=self.id, news_id=news_id).first() is not None
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode({"reset_password": self.id,
@@ -176,6 +179,7 @@ class Bookmark(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     news_id = db.Column(db.Integer, db.ForeignKey('news.id'))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    news = db.relationship('News')
 
     def __repr__(self) -> str:
         return f'<Bookmark {self.user_id} {self.news_id}>'

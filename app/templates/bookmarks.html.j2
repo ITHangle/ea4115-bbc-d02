@@ -1,4 +1,4 @@
-{% extends "searchbase.html.j2" %}
+{% extends "navigation_bar.html.j2" %}
 {% block head %}
     {{ super() }}
     <style>
@@ -108,9 +108,9 @@
 {% block app_content %}
     <h1>My Bookmarks</h1>
     <ul>
-        {% for news_id in Bookmark %}
+        {% for news in bookmarked_news %}
             <li>
-                <a href="{{ url_for('news_detail', news_id=news_id) }}">News {{ news_id }}</a>
+                <a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a>
             </li>
         {% endfor %}
     </ul>

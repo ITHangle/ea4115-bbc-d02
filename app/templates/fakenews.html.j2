@@ -1,8 +1,8 @@
-{% extends "searchbase.html.j2" %}
+{% extends "navigation_bar.html.j2" %}
 {% block app_content %}
 {% import 'bootstrap/wtf.html' as wtf %}
     {% if news.image %}
-        <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image">
+        <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image" style="max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;">
     {% endif %}
     <h1>{{ news.title }}</h1>
     <p>{{ news.content }}</p>

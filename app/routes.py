@@ -23,7 +23,7 @@ def before_request():
         db.session.commit()
     g.locale = str(get_locale())
 
-
+#主页route
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
@@ -40,10 +40,7 @@ def index():
         db.session.commit()
         return redirect(url_for('home'))
     news_list = News.query.all()
-    # 获取所有的 BANTag 对象
     ban_tags = BANTag.query.all()
-    search_title = form.title.data
-    search_title = form.title.data
     blocked_users = [u.id for u in current_user.blocked_users]
     news_list = News.query.all()
     ban_tags = BANTag.query.all()
@@ -55,7 +52,6 @@ def index():
         if len(news.content) > 100:
             news.content = news.content[:100] + '...'
     return render_template('index.html.j2', form=form, news_list=news_list, user=current_user, ban_tags=ban_tags)
-
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -192,9 +188,12 @@ def unfollow(username):
     return redirect(url_for('user', username=username))
 
 
-
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():
+    if not current_user.is_authenticated:
+        flash('You can only submit news if you are logged in')
+        return redirect(url_for('login'))
+
     form = NewsForm()
     if request.method == "POST":
         if 'editor' in request.form:
@@ -314,9 +313,10 @@ def delete_news(news_id):
 def BAN_tags():
     tag_id = request.args.get('tag_id', type=int)
     news_id = request.args.get('news_id', type=int)
-    ban_tag = BANTag(tag_id=tag_id, news_id=news_id, user_id=current_user.id)
-    db.session.add(ban_tag)
-    db.session.commit()
+    if tag_id is not None and news_id is not None:
+        ban_tag = BANTag(tag_id=tag_id, news_id=news_id, user_id=current_user.id)
+        db.session.add(ban_tag)
+        db.session.commit()
     ban_tags = BANTag.query.all()
     return render_template('BAN_tags.html.j2', ban_tags=ban_tags)
 
@@ -402,9 +402,11 @@ def bookmarks():
 
     # 假設你有一個名為 news_list 的變量，用來存儲所有新聞
     # 你可以根據用戶的書籤篩選相關的新聞
-    user_bookmarked_news = [bookmark.news_id for bookmark in user_bookmarks]
+# 获取每个书签对应的新闻对象
+    bookmarked_news = [bookmark.news for bookmark in user_bookmarks]
 
-    return render_template('bookmarks.html.j2', Bookmark=user_bookmarked_news)
+    # 将新闻对象传递给模板
+    return render_template('bookmarks.html.j2', bookmarked_news=bookmarked_news)
 
 @app.route('/unlike_news/<int:news_id>', methods=['POST'])
 def unlike_news(news_id):
@@ -418,6 +420,9 @@ def unlike_news(news_id):
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
+    if not current_user.is_authenticated:
+        flash('You can only search if you are logged in')
+        return redirect(url_for('login'))
     if request.method == 'POST':
         query = request.form['query']
         new_search = SearchHistory(user_id=current_user.id, query=query)

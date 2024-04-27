@@ -1,4 +1,4 @@
-{% extends "searchbase.html.j2" %}
+{% extends "navigation_bar.html.j2" %}
 {% block head %}
     {{ super() }}
     <style>
@@ -137,7 +137,7 @@
                             <span style="display: inline-block; width: 25%;">Updated on: {{ news.updated_at.strftime('%Y-%m-%d') }}</span>
                         {% endif %}
                     </div>
-                    <p class="card-text">{{ _('Author: %(username)s', username=news.author.username) }}</p>
+                    <a href="/user/{{ news.author.username }}">{{ _('author：%(username)s', username=news.author.username) }}</a>
                     <p>
                         {% for tag in news.tags %}
                             <a href="{{ url_for('BAN_tags', tag_id=tag.id, news_id=news.id) }}">X</a>  
