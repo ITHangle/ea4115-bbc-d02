@@ -38,7 +38,7 @@
     <form method="POST" action="{{ url_for('edit', news_id=news.id) if news.id else url_for('submit') }}" enctype="multipart/form-data">
         {{ form.csrf_token }}
         <h2>{{ 'Edit News' if news.id else 'Submit News' }}</h2>
-        <input type="text" name="title" placeholder="Enter title here" value="{{ news.title if news.id }}">
+        <input type="text" name="title" placeholder="Enter title here" value="{{ news.title if news.id }}" required>
         {{ ckeditor.create(name='editor', value=news.content if news.id) }}
         <div id="tags">
             {% for tag in news.tags if news.id %}
