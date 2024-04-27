@@ -139,6 +139,15 @@
                         {{ tag.name }}
                     {% endfor %}
                 </p>
+                {% if current_user.is_bookmarked(news.id) %}
+                    <form action="{{ url_for('toggle_bookmark', news_id=news.id) }}" method="post">
+                        <button type="submit" style="color: black;">Remove Bookmark</button>
+                    </form>
+                {% else %}
+                    <form action="{{ url_for('toggle_bookmark', news_id=news.id) }}" method="post">
+                        <button type="submit" style="color: black;">Add Bookmark</button>
+                    </form>
+                {% endif %}
                 {% if current_user.username == news.author.username %}
                     <div class="d-flex">
                         <a href="{{ url_for('edit', news_id=news.id) }}"

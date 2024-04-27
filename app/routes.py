@@ -1,14 +1,15 @@
 from datetime import datetime
+from operator import or_
 import os
 import io
-from flask import render_template, flash, redirect, session, url_for, request, g, send_file
+from flask import render_template, flash, redirect, session, url_for, request, g, send_file, Flask
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
 from flask_babel import _, get_locale
 from app import app, db
 from app.forms import LoginForm, NewsForm, RegistrationForm, EditProfileForm, PostForm, \
     ResetPasswordRequestForm, ResetPasswordForm, LikeForm
-from app.models import News, Tag, User, Post, BANTag, Liked
+from app.models import News, Tag, User, Post, BANTag, Liked, SearchHistory, Bookmark
 from app.email import send_password_reset_email
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -38,6 +39,11 @@ def index():
         db.session.add(news)
         db.session.commit()
         return redirect(url_for('home'))
+    news_list = News.query.all()
+    # 获取所有的 BANTag 对象
+    ban_tags = BANTag.query.all()
+    search_title = form.title.data
+    search_title = form.title.data
     blocked_users = [u.id for u in current_user.blocked_users]
     news_list = News.query.all()
     ban_tags = BANTag.query.all()
@@ -185,21 +191,7 @@ def unfollow(username):
     flash(_('You are not following %(username)s.', username=username))
     return redirect(url_for('user', username=username))
 
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    if request.method == 'POST':
-        query = request.form['query']
-        if query: 
-            results = News.query.filter(News.title.contains(query)).all()
-            return render_template('search.html', results=results)
-        else:
-            return render_template('search.html', message="You did not enter any search terms.")
-    return render_template('search.html')
 
-
-def perform_search(query):
-    results = [f"Result for '{query}': {i}" for i in range(3)]
-    return results
 
 @app.route('/submit', methods=['GET', 'POST'])
 def submit():
@@ -383,3 +375,59 @@ def unblock(username):
     db.session.commit()
     flash(_('You are not blocking %(username)s.', username=username))
     return redirect(url_for('user', username=username))
+
+@app.route('/toggle_bookmark/<int:news_id>', methods=['POST'])
+@login_required
+def toggle_bookmark(news_id):
+    news = News.query.get_or_404(news_id)
+    bookmark = Bookmark.query.filter_by(user_id=current_user.id, news_id=news_id).first()
+    if bookmark:
+        # 如果已經書籤過，取消書籤
+        db.session.delete(bookmark)
+        flash('Remove it', 'success')
+    else:
+        # 如果還沒書籤過，新增書籤
+        bookmark = Bookmark(user_id=current_user.id, news_id=news_id)
+        db.session.add(bookmark)
+        flash('Done', 'success')
+    db.session.commit()
+
+    return redirect(url_for('index'))
+
+@app.route('/bookmarks')
+@login_required
+def bookmarks():
+    # 假設你有一個名為 bookmarks 的關聯屬性，用來存儲用戶的書籤
+    user_bookmarks = current_user.bookmarks.all()
+
+    # 假設你有一個名為 news_list 的變量，用來存儲所有新聞
+    # 你可以根據用戶的書籤篩選相關的新聞
+    user_bookmarked_news = [bookmark.news_id for bookmark in user_bookmarks]
+
+    return render_template('bookmarks.html.j2', Bookmark=user_bookmarked_news)
+
+@app.route('/unlike_news/<int:news_id>', methods=['POST'])
+def unlike_news(news_id):
+    liked = Liked.query.filter_by(user_id=current_user.id, news_id=news_id).first()
+    if liked:  # If the user has previously liked it
+        db.session.delete(liked)  # Remove the like
+        news = News.query.get(news_id)
+        news.number_like -= 1  # Decrement the like count
+        db.session.commit()
+    return redirect(url_for('news_detail', news_id=news_id))
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method == 'POST':
+        query = request.form['query']
+        new_search = SearchHistory(user_id=current_user.id, query=query)
+        db.session.add(new_search)
+        db.session.commit()
+        recent_searches = db.session.query(SearchHistory).filter_by(user_id=current_user.id).order_by(SearchHistory.timestamp.desc()).limit(5).all()
+        results = News.query.join(User).filter(or_(News.title.contains(query), User.username.contains(query))).all()
+        if results:
+            return render_template('search.html', results=results, recent_searches=recent_searches)
+        else:
+            return render_template('search.html', message="没有找到相关的新闻。", recent_searches=recent_searches)
+    recent_searches = db.session.query(SearchHistory).filter_by(user_id=current_user.id).order_by(SearchHistory.timestamp.desc()).limit(5).all()
+    return render_template('search.html', recent_searches=recent_searches)

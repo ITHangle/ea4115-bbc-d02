@@ -37,6 +37,8 @@ class User(UserMixin, db.Model):
     about_me = db.Column(db.String(140))
     news = db.relationship('News', backref='author', lazy='dynamic')
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    search_history = db.relationship('SearchHistory', backref='user', lazy='dynamic')
+    bookmarks = db.relationship('Bookmark', backref='user', lazy='dynamic')
     blocked_news = db.relationship('News', secondary=blocks, lazy='subquery',
         backref=db.backref('blocked_by', lazy=True))
     blocked_users = db.relationship(
@@ -158,6 +160,7 @@ class News(db.Model):
     posts = db.relationship('Post', backref='news', lazy='dynamic')
     number_like = db.Column(db.Integer, default=0)  # 新增的点赞数属性
 
+
 class BANTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))  # 从 'tags.name' 更改为 'tag.id'
@@ -167,3 +170,18 @@ class BANTag(db.Model):
     # 添加关系
     tag = db.relationship('Tag', backref=db.backref('ban_tags', lazy='dynamic'))
     news = db.relationship('News', backref=db.backref('ban_tags', lazy='dynamic'))
+
+class Bookmark(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id'))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self) -> str:
+        return f'<Bookmark {self.user_id} {self.news_id}>'
+
+class SearchHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    query = db.Column(db.String(100))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
