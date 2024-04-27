@@ -14,18 +14,28 @@
                 </p>
                 {% if user == current_user %}
                     <p>
-                        <a href="{{ url_for('edit_profile') }}">{{ _('Edit your profile') }}</a> 
-                        &nbsp &nbsp
-                        <a href="{{ url_for('BAN_tags') }}">{{ _('Edit you BAN tag') }}</a> 
-                    </p>
-                {% elif not current_user.is_following(user) %}
-                    <p>
-                        <a href="{{ url_for('follow', username=user.username) }}">{{ _('Follow') }}</a>
+                        <a href="{{ url_for('edit_profile') }}">{{ _('Edit your profile') }}</a>
+                        <a href="{{ url_for('BAN_tags') }}">{{ _('Edit you BAN tag') }}</a>
                     </p>
                 {% else %}
-                    <p>
-                        <a href="{{ url_for('unfollow', username=user.username) }}">{{ _('Unfollow') }}</a>
-                    </p>
+                    {% if not current_user.is_following(user) %}
+                        <p>
+                            <a href="{{ url_for('follow', username=user.username) }}">{{ _('Follow') }}</a>
+                        </p>
+                    {% else %}
+                        <p>
+                            <a href="{{ url_for('unfollow', username=user.username) }}">{{ _('Unfollow') }}</a>
+                        </p>
+                    {% endif %}
+                    {% if not current_user.is_blocking(user) %}
+                        <p>
+                            <a href="{{ url_for('block_user', username=user.username) }}">{{ _('Block') }}</a>
+                        </p>
+                    {% else %}
+                        <p>
+                            <a href="{{ url_for('unblock', username=user.username) }}">{{ _('Unblock') }}</a>
+                        </p>
+                    {% endif %}
                 {% endif %}
             </td>
         </tr>
@@ -48,4 +58,3 @@
         </ul>
     </nav>
 {% endblock %}
-

@@ -38,22 +38,13 @@ def index():
         db.session.add(news)
         db.session.commit()
         return redirect(url_for('home'))
-
-    # 获取所有的新闻
+    blocked_users = [u.id for u in current_user.blocked_users]
     news_list = News.query.all()
-
-    # 获取所有的 BANTag 对象
     ban_tags = BANTag.query.all()
-
-    # 创建一个包含所有被 BANTag 记录的标签的集合
     ban_tag_set = {ban_tag.tag for ban_tag in ban_tags}
-
-    # 过滤掉那些带有被 BANTag 记录的标签的新闻
     news_list = [news for news in news_list if not any(tag in ban_tag_set for tag in news.tags)]
-
-    # 过滤掉被当前用户屏蔽的新闻
+    news_list = [news for news in news_list if news.author_id not in blocked_users]
     news_list = [news for news in news_list if news not in current_user.blocked_news]
-
     for news in news_list:
         if len(news.content) > 100:
             news.content = news.content[:100] + '...'
@@ -363,3 +354,32 @@ def block(news_id):
     return redirect(url_for('index'))
 
 
+@app.route('/block/<username>')
+@login_required
+def block_user(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash(_('User %(username)s not found.', username=username))
+        return redirect(url_for('index'))
+    if user == current_user:
+        flash(_('You cannot block yourself!'))
+        return redirect(url_for('user', username=username))
+    current_user.block_user(user)
+    db.session.commit()
+    flash(_('You are blocking %(username)s!', username=username))
+    return redirect(url_for('user', username=username))
+
+@app.route('/unblock/<username>')
+@login_required
+def unblock(username):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash(_('User %(username)s not found.', username=username))
+        return redirect(url_for('index'))
+    if user == current_user:
+        flash(_('You cannot unblock yourself!'))
+        return redirect(url_for('user', username=username))
+    current_user.unblock_user(user)
+    db.session.commit()
+    flash(_('You are not blocking %(username)s.', username=username))
+    return redirect(url_for('user', username=username))

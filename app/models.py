@@ -22,6 +22,11 @@ blocks = db.Table('blocks',
     db.Column('news_id', db.Integer, db.ForeignKey('news.id'), primary_key=True)
 )
 
+user_blocks = db.Table('user_blocks',
+    db.Column('blocker_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('blocked_id', db.Integer, db.ForeignKey('user.id'), primary_key=True)
+)
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,6 +39,11 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     blocked_news = db.relationship('News', secondary=blocks, lazy='subquery',
         backref=db.backref('blocked_by', lazy=True))
+    blocked_users = db.relationship(
+        'User', secondary=user_blocks,
+        primaryjoin=(user_blocks.c.blocker_id == id),
+        secondaryjoin=(user_blocks.c.blocked_id == id),
+        backref=db.backref('blocked_by', lazy='dynamic'), lazy='dynamic')
     followed = db.relationship(
         'User', secondary=followers,
         primaryjoin=(followers.c.follower_id == id),
@@ -64,6 +74,23 @@ class User(UserMixin, db.Model):
 
     def is_following(self, user):
         return self.followed.filter(followers.c.followed_id == user.id).count() > 0
+    
+    def block_user(self, user):
+        if not self.is_blocking(user):
+            self.blocked_users.append(user)
+
+    def unblock_user(self, user):
+        if self.is_blocking(user):
+            self.blocked_users.remove(user)
+
+    def is_blocking(self, user):
+        return self.blocked_users.filter(user_blocks.c.blocked_id == user.id).count() > 0
+    
+    def block_user(self, user):
+        if not self.is_blocking(user):
+            self.blocked_users.append(user)
+            if self.is_following(user):
+                self.unfollow(user)
 
     def followed_posts(self):
         followed = Post.query.join(
