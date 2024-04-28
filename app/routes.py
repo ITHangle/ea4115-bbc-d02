@@ -40,10 +40,10 @@ def index():
         db.session.commit()
         return redirect(url_for('home'))
     news_list = News.query.all()
-    ban_tags = BANTag.query.all()
+    ban_tags = BANTag.query.filter_by(user_id=current_user.id).all()
     blocked_users = [u.id for u in current_user.blocked_users]
-    news_list = News.query.all()
-    ban_tags = BANTag.query.all()
+    ban_tag_set = {ban_tag.tag for ban_tag in ban_tags}
+    news_list = [news for news in news_list if not any(tag in ban_tag_set for tag in news.tags)]
     ban_tag_set = {ban_tag.tag for ban_tag in ban_tags}
     news_list = [news for news in news_list if not any(tag in ban_tag_set for tag in news.tags)]
     news_list = [news for news in news_list if news.author_id not in blocked_users]
@@ -317,7 +317,7 @@ def BAN_tags():
         ban_tag = BANTag(tag_id=tag_id, news_id=news_id, user_id=current_user.id)
         db.session.add(ban_tag)
         db.session.commit()
-    ban_tags = BANTag.query.all()
+    ban_tags = BANTag.query.filter_by(user_id=current_user.id).all()
     return render_template('BAN_tags.html.j2', ban_tags=ban_tags)
 
 

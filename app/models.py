@@ -39,6 +39,7 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     search_history = db.relationship('SearchHistory', backref='user', lazy='dynamic')
     bookmarks = db.relationship('Bookmark', backref='user', lazy='dynamic')
+    ban_tags = db.relationship('BANTag', backref='user', lazy='dynamic')
     blocked_news = db.relationship('News', secondary=blocks, lazy='subquery',
         backref=db.backref('blocked_by', lazy=True))
     blocked_users = db.relationship(
