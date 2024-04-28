@@ -430,6 +430,8 @@ def search():
         db.session.commit()
         recent_searches = db.session.query(SearchHistory).filter_by(user_id=current_user.id).order_by(SearchHistory.timestamp.desc()).limit(5).all()
         results = News.query.join(User).filter(or_(News.title.contains(query), User.username.contains(query))).all()
+        tag_results = News.query.join(News.tags).filter(Tag.name.contains(query)).all()
+        results.extend(tag_results)
         if results:
             return render_template('search.html', results=results, recent_searches=recent_searches)
         else:
