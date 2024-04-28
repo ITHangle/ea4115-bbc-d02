@@ -292,7 +292,6 @@ def like_news(news_id):
 
 
 
-
 @app.route('/delete/<int:news_id>', methods=['POST'])
 @login_required
 def delete_news(news_id):
@@ -397,16 +396,10 @@ def toggle_bookmark(news_id):
 @app.route('/bookmarks')
 @login_required
 def bookmarks():
-    # 假設你有一個名為 bookmarks 的關聯屬性，用來存儲用戶的書籤
     user_bookmarks = current_user.bookmarks.all()
-
-    # 假設你有一個名為 news_list 的變量，用來存儲所有新聞
-    # 你可以根據用戶的書籤篩選相關的新聞
-# 获取每个书签对应的新闻对象
-    bookmarked_news = [bookmark.news for bookmark in user_bookmarks]
-
-    # 将新闻对象传递给模板
+    bookmarked_news = [bookmark.news for bookmark in user_bookmarks if bookmark.news is not None]
     return render_template('bookmarks.html.j2', bookmarked_news=bookmarked_news)
+
 
 @app.route('/unlike_news/<int:news_id>', methods=['POST'])
 def unlike_news(news_id):

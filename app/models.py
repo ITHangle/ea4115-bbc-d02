@@ -178,7 +178,7 @@ class BANTag(db.Model):
 class Bookmark(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    news_id = db.Column(db.Integer, db.ForeignKey('news.id'))
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id', ondelete='CASCADE'))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     news = db.relationship('News')
 
