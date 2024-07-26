@@ -1,0 +1,171 @@
+{% extends "navigation_bar.html.j2" %}
+{% block head %}
+    {{ super() }}
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #f2f2f2;
+            font-family: Arial, sans-serif;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: row;
+            background-color: #333;
+            border: none;
+            margin-bottom: 20px;
+            max-height: 500px;
+            overflow: auto;
+        }
+
+        .card:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .card-img-top {
+            width: 30%;
+            height: 200px;
+            object-fit: conta;
+        }
+
+        .card-body {
+            width: 50%;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .card-title a {
+            color: #f2f2f2;
+            text-decoration: none;
+        }
+
+        .card-text {
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            color: #f2f2f2;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .d-flex {
+            display: flex;
+            gap: 10px;
+        }
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .profile, .news-list {
+            flex: 1 1 500px;
+            margin: 20px;
+        }
+    </style>
+{% endblock %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block app_content %}
+    <h1>Search Results</h1>
+    <form method="POST" action="{{ url_for('search') }}">
+        <input list="recent-searches" type="text" style="color: #1a1a1a;" name="query" placeholder="输入搜索词" required>
+        <datalist id="recent-searches">
+            {% for search in recent_searches %}
+                <option value="{{ search.query }}">
+            {% endfor %}
+        </datalist>
+        <input type="submit" style="color: #1a1a1a;" value="搜索">
+    </form>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+    {% if results %}
+        {% for news in results %}
+            <div class="card">
+                {% if news.image %}
+                    <img class="card-img-top"
+                         src="{{ url_for('picture', news_id=news.id) }}"
+                         alt="News image">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <a href="{{ url_for('news_detail', news_id=news.id) }}">{{ news.title }}</a>
+                    </h2>
+                    <div>
+                        {% if news and news.created_at %}
+                            <span style="display: inline-block; width: 25%;">Published on: {{ news.created_at.strftime('%Y-%m-%d') }}</span>
+                            <span style="display: inline-block; width: 25%;">Updated on: {{ news.updated_at.strftime('%Y-%m-%d') }}</span>
+                        {% endif %}
+                    </div>
+                    <a href="/user/{{ news.author.username }}">{{ _('author：%(username)s', username=news.author.username) }}</a>
+                    <p>
+                        {% for tag in news.tags %}
+                            <a href="{{ url_for('BAN_tags', tag_id=tag.id, news_id=news.id) }}">X</a>  
+                            {{ tag.name }}
+                        {% endfor %}
+                    </p>
+                    {% if current_user.is_bookmarked(news.id) %}
+                    <form action="{{ url_for('toggle_bookmark', news_id=news.id) }}" method="post">
+                        <button type="submit" style="color: black;">Remove Bookmark</button>
+                    </form>
+                    {% else %}
+                    <form action="{{ url_for('toggle_bookmark', news_id=news.id) }}" method="post">
+                        <button type="submit" style="color: black;">Add Bookmark</button>
+                    </form>
+                    {% endif %}
+                    {% if current_user.username == news.author.username %}
+                        <div class="d-flex">
+                            <a href="{{ url_for('edit', news_id=news.id) }}"
+                               class="btn btn-primary mr-2">Edit</a>
+                            <form method="POST"
+                                  action="{{ url_for('delete_news', news_id=news.id) }}"
+                                  class="d-inline">
+                                <input type="submit" value="Delete" class="btn btn-danger">
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

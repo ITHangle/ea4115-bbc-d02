@@ -1,0 +1,43 @@
+{% extends "navigation_bar.html.j2" %}
+{% block app_content %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+    {% if news.image %}
+        <img class="card-img-top" src="{{ url_for('picture', news_id=news.id) }}" alt="News image" style="max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;">
+    {% endif %}
+    <h1>{{ news.title }}</h1>
+    <p>{{ news.content }}</p>
+    <p>Liked：{{ news.number_like }}
+        <form method="POST" action="{{ url_for('like_news', news_id=news.id) }}">
+            <input type="submit" value="Like">
+        </form>
+    </p>  
+        <form method="POST" action="{{ url_for('unlike_news', news_id=news.id) }}">
+            <input type="submit" value="unLike">
+        </form>
+    </p>  
+
+
+    <form method="POST" action="{{ url_for('news_detail', news_id=news.id) }}">
+        <textarea name="post" placeholder="Writedown something~" required></textarea>
+        <input type="submit" value="Post">
+    </form>
+
+    {% for post in posts %}
+        {% include "_post.html.j2" %}
+    {% endfor %}
+    <nav aria-label="...">
+        <ul class="pager">
+            <li class="previous{% if not prev_url %} disabled{% endif %}">
+                <a href="{{ prev_url or '#' }}">
+                    <span aria-hidden="true">←</span> {{ _('Newer posts') }}
+                </a>
+            </li>
+            <li class="next{% if not next_url %} disabled{% endif %}">
+                <a href="{{ next_url or '#' }}">
+                    {{ _('Older posts') }} <span aria-hidden="true">→</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
